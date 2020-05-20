@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8"> 
+    <title>Multi-Factors Prediction System</title>
+    <style>
+        .table-hover > tbody > tr:hover{
+            background: rgb(106, 144, 202)!important;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">  
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    </head>
+    <body>
+
+        <div class="container">          
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color: rgb(106, 144, 202);">
+                <h2 style="font-weight: bolder; color: white;">Multi-Factors Prediction Application</h2>               
+            </div>
+            
+            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="background-color: rgb(164, 221, 221);">                      
+                <div class="row" style="background-color: rgb(194, 203, 229); height: 360px;">
+                    <h4 style="font-style: italic; color: rgb(33, 48, 92); margin-left: 15px; font-weight: bolder">Show Data</h4>
+                    
+                    <table class="table table-hover" id="showTable">
+                        <thead id="tableHead">
+
+                        </thead>
+                        <tbody id="tableBody">
+
+                        </tbody>
+                    </table>
+                    
+                </div>
+                <div class="row" style="background-color: rgb(239, 242, 247); height: 540px;">               
+                    <h4 style="font-style: italic; color: rgb(33, 48, 92); font-weight: bolder; margin-left: 15px;">Results</h4>
+                    <div id="canvas" style="width: 650px;  height: 400px; margin-left: 50px;"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="totalrtn" style="font-weight: bolder; text-align: center;">
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="srp" style="font-weight: bolder; text-align: center;">
+                    </div> 
+                </div>
+            </div>
+                
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <div class="row" style="height: 80px; background-color: rgb(84, 100, 185);">
+                    <h4 style="font-style: italic; color: rgb(255, 255, 255); margin-left: 15px; font-weight: bolder">Uploading Data</h4>
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <input type="file" name="file" style="padding-left: 15px; color: white;">
+                            </div>
+
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <label onclick="upload()" style="font-weight: bolder;color: white; text-align: center;">Upload</label>
+                            </div>
+                        </form>
+                </div>
+                        
+                <div class="row" style="height: 280px; background: rgb(34, 38, 104);">
+                    <h4 style="font-style: italic; color: rgb(255, 255, 255); font-weight: bolder; margin-left: 15px;">Parameters Settings</h4>                    
+                    <table class="table table-hover" style="background-color: rgb(84, 100, 185);">
+                        <thead>
+                            <tr>
+                                <th style="color: white;">Parameter</th>
+                                <th style="color: white;">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: seashell; font-weight: bolder;">Train/Test Ratio</td>
+                                <td>
+                                    <input type="text" name="parameters" id="ttratio" class="form-control" required="required" style="width: 150px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: seashell; font-weight: bolder;">Commission Fee</td>
+                                <td>
+                                    <input type="text" name="parameters" id="comfee" class="form-control" required="required" style="width: 150px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: seashell; font-weight: bolder;">Stop Loss</td>
+                                <td>
+                                    <input type="text" name="parameters" id="sloss" class="form-control" required="required" style="width: 150px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: seashell; font-weight: bolder;">Stop Win</td>
+                                <td>
+                                    <input type="text" name="parameters" id="swin" class="form-control" required="required" style="width: 150px;">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                        
+                <div class="row" style="height: 330px; background-color: rgb(34, 38, 104);">
+                        <h4 style="font-style: italic; color: lightcyan; font-weight: bolder; padding-left: 15px;">Factor Selection</h4>  
+                        <table class="table table-hover text-nowrap" style="background-color: rgb(84, 100, 185);">
+                            <tbody>
+                                <tr>
+                                    <td><label style="color: azure;">MA_diff1</label></td>
+                                    <td><input type="checkbox" name="factor" value="ma_diff1" style="margin-left: 10px;"></td>
+                                    <td><label style="color: azure;">MA_diff2</label></td>
+                                    <td><input type="checkbox" name="factor" value="ma_diff2" style="margin-left: 10px;"></td>
+                                </tr>
+                                <tr>
+                                    <td><label style="color: azure;">MACD</label></td>
+                                    <td><input type="checkbox" name="factor" value="macd" style="margin-left: 10px;"></td>
+                                    <td><label style="color: azure;">SLOPE5</label></td>
+                                    <td><input type="checkbox" name="factor" value="slope5" style="margin-left: 10px;"></td>
+                                </tr>
+                                <tr>
+                                    <td><label style="color: azure;">SLOPE15</label></td>
+                                    <td><input type="checkbox" name="factor" value="slope15" style="margin-left: 10px;"></td>
+                                    <td><label style="color: azure;">SLOPE_diff</label></td>
+                                    <td><input type="checkbox" name="factor" value="slope_diff" style="margin-left: 10px;"></td>
+                                </tr>
+                                <tr>
+                                    <td><label style="color: azure;">SKEW</label></td>
+                                    <td><input type="checkbox" name="factor" value="skew" style="margin-left: 10px;"></td>
+                                    <td><label style="color: azure;">RSI20</label></td>
+                                    <td><input type="checkbox" name="factor" value="rsi20" style="margin-left: 10px;"></td>
+                                </tr>
+                                <tr>
+                                    <td><label style="color: azure;">RSI_SIG</label></td>
+                                    <td><input type="checkbox" name="factor" value="rsi_sig" style="margin-left: 10px;"></td>
+                                    <td><label style="color: azure;">BOLL_SIG</label></td>
+                                    <td><input type="checkbox" name="factor" value="boll_sig" style="margin-left: 10px;"></td>
+                                </tr>
+                                <tr>
+                                    <td><label style="color: azure;">KALMAN_SIG</label></td>
+                                    <td><input type="checkbox" name="factor" value="kalman" style="margin-left: 10px;"></td>
+                                    <td><label style="color: azure;">MACD_RATIO</label></td>
+                                    <td><input type="checkbox" name="factor" value="macd_ratio" style="margin-left: 10px;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        
+                </div>
+
+                        
+                <div class="row" style="text-align: center; height: 210px; background: rgb(84, 100, 185);">
+                        <button onclick="func()" class="btn btn-default btn-lg" style="font-weight: bolder; margin-top: 70px;">
+                            <span class="glyphicon glyphicon-play"></span>RUN BACKTEST
+                        </button>
+                </div>
+                        
+                </div>
+            </div>  
+        </div>
+    </body>
+
+    <script>
+        function showResults(date, pnl, price, spr, totalrtn) {
+            var myChart = echarts.init(document.getElementById("canvas"));
+            var option = {
+                xAxis: {
+                    data: date
+                    },
+                tooltip:{
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['Return', 'Price']
+                },
+                yAxis: [{
+                    name: 'Return',
+                    type: 'value'
+                },{
+                    name: 'Price',
+                    type: 'value'
+                }],
+                series: [{
+                    name: "Return",
+                    type: 'line',
+                    data: pnl,
+                    yAxisIndex: 0
+                }, {
+                    name: "Price",
+                    type: 'line',
+                    data: price,
+                    yAxisIndex: 1
+                }]
+            };
+
+            myChart.setOption(option);
+            var sprLabel = document.getElementById("srp")
+            var totalrtnLabel = document.getElementById("totalrtn")
+            sprLabel.innerHTML = "Sharpe Ratio: " + spr;
+            totalrtnLabel.innerHTML = "Total Return: " + totalrtn;
+        }
+        
+        function addHead() {
+            var TR = document.createElement("tr");
+            var thDate = document.createElement("th");
+            var thOpen = document.createElement("th");
+            var thHigh = document.createElement("th");
+            var thLow = document.createElement("th");
+            var thClose = document.createElement("th");
+            var thAdjClose = document.createElement("th");
+            var thVolume = document.createElement("th");
+
+            thDate.innerHTML = "Date";
+            thOpen.innerHTML = "Open";
+            thHigh.innerHTML = "High";
+            thLow.innerHTML = "Low";
+            thClose.innerHTML = "Close";
+            thAdjClose.innerHTML = "AdjClose";
+            thVolume.innerHTML = "Volume";
+
+            var head = document.getElementById("tableHead");
+            head.appendChild(TR)
+            TR.appendChild(thDate)
+            TR.appendChild(thOpen)
+            TR.appendChild(thHigh)
+            TR.appendChild(thLow)
+            TR.appendChild(thClose)
+            TR.appendChild(thAdjClose)
+            TR.appendChild(thVolume)
+        }
+
+        function addTable(data) {
+            var TR = document.createElement("tr");
+            var tdDate = document.createElement("td");
+            var tdOpen = document.createElement("td");
+            var tdHigh = document.createElement("td");
+            var tdLow = document.createElement("td");
+            var tdClose = document.createElement("td");
+            var tdAdjClose = document.createElement("td");
+            var tdVolume = document.createElement("td");
+
+            var body = document.getElementById("tableBody");
+            
+            for (let index = 0; index < data.length; index++) {
+                var element = data[index];
+                var row = body.insertRow(body.rows.length)
+                var c1 = row.insertCell(0);
+                c1.innerHTML = element.date
+                var c2 = row.insertCell(1);
+                c2.innerHTML = element.open
+                var c3 = row.insertCell(2);
+                c3.innerHTML = element.high
+                var c4 = row.insertCell(3);
+                c4.innerHTML = element.low
+                var c5 = row.insertCell(4);
+                c5.innerHTML = element.close
+                var c6 = row.insertCell(5);
+                c6.innerHTML = element.adjclose
+                var c7 = row.insertCell(6);
+                c7.innerHTML = element.volume
+            }
+        }
+        
+        function clearTable() {
+            $("#showTable tbody").html("");
+            $("#showTable thead").html("");
+        }
+
+        function upload() {
+            var formData = new FormData($('#uploadForm')[0]);
+            $.ajax({
+                url:"/up_file",
+                type:"POST",
+                data:formData,
+                async: true,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (returnData){
+                    alert("Upload Success!")
+                    // console.log(returnData)
+                    clearTable();
+                    addHead();
+                    addTable(returnData);
+                },
+                error: function (returnData) {
+                    alert("Upload failed!");
+                }
+            })
+        }
+
+        function func() {
+            models = document.getElementsByName("model");
+            check_model = [];
+            for (m in models) {
+                if (models[m].checked) {
+                    check_model.push(1);
+                } 
+                if (models[m].checked == false){
+                    check_model.push(0);
+                }
+            }
+
+            var parameters = document.getElementsByName("parameters");
+            var para_list = [];
+            for (let index = 0; index < parameters.length; index++) {
+                para_list.push(parameters[index].value);
+            }
+
+            if (para_list.length == 0) {
+                alert("Please enter parameters!")
+            } else {
+                $.ajax({
+                    url: "/backTest",
+                    type: "POST",
+                    data: {
+                        "models": check_model,
+                        "paras": para_list,
+                    },
+                    dataType: 'json',
+                    success: function(data){
+                        var status_code = data.status_code;
+                        if (status_code == 202) {
+                            alert("Please load data")
+                        } else {
+                            var result_date = data.date;
+                            var result_pnl = data.pnl;
+                            var result_spr = data.spr;
+                            var result_totalrtn = data.totalrtn;
+                            var result_price = data.price;
+
+                            showResults(result_date, result_pnl, result_price, result_spr, result_totalrtn);
+                        }
+
+                    },
+                    error: function(e){
+                        alert("error");
+                    }
+                })
+            }
+        }
+
+    </script>
+</html>
